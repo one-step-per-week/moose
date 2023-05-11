@@ -368,6 +368,9 @@ class TestHarness:
 
         try:
             testroot_params = {}
+            print(f'============= search_dir = {search_dir}')
+            maxTests = 5
+            count = 0
             for dirpath, dirnames, filenames in os.walk(search_dir, followlinks=True):
                 # Prune submdule paths when searching for tests
 
@@ -416,8 +419,8 @@ class TestHarness:
 
                             # Create the testers for this test
                             testers = self.createTesters(dirpath, file, find_only, testroot_params)
-
-
+                            count += 1
+                            print(f'count = {count}, dirpath = {dirpath}, file  = {file}')
                             # Schedule the testers (non blocking)
                             self.scheduler.schedule(testers)
 
@@ -427,6 +430,10 @@ class TestHarness:
 
                             os.chdir(saved_cwd)
                             sys.path.pop()
+                            if count == maxTests:
+                                break
+                if count == maxTests:
+                    break
 
             # Wait for all the tests to complete (blocking)
             self.scheduler.waitFinish()
